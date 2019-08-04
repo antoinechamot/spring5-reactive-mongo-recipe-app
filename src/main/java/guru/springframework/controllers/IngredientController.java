@@ -5,7 +5,7 @@ import guru.springframework.commands.RecipeCommand;
 import guru.springframework.commands.UnitOfMeasureCommand;
 import guru.springframework.services.IngredientService;
 import guru.springframework.services.RecipeService;
-import guru.springframework.services.UnitOfMeasureService;
+import guru.springframework.services.UnitOfMeasureReactiveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,12 +23,12 @@ public class IngredientController {
 
     private final IngredientService ingredientService;
     private final RecipeService recipeService;
-    private final UnitOfMeasureService unitOfMeasureService;
+    private final UnitOfMeasureReactiveService unitOfMeasureReactiveService;
 
-    public IngredientController(IngredientService ingredientService, RecipeService recipeService, UnitOfMeasureService unitOfMeasureService) {
+    public IngredientController(IngredientService ingredientService, RecipeService recipeService, UnitOfMeasureReactiveService unitOfMeasureService) {
         this.ingredientService = ingredientService;
         this.recipeService = recipeService;
-        this.unitOfMeasureService = unitOfMeasureService;
+        this.unitOfMeasureReactiveService = unitOfMeasureService;
     }
 
     @GetMapping("/recipe/{recipeId}/ingredients")
@@ -62,7 +62,7 @@ public class IngredientController {
         //init uom
         ingredientCommand.setUom(new UnitOfMeasureCommand());
 
-        model.addAttribute("uomList",  unitOfMeasureService.listAllUoms());
+        model.addAttribute("uomList",  unitOfMeasureReactiveService.listAllUoms().collectList().block());
 
         return "recipe/ingredient/ingredientform";
     }
@@ -72,7 +72,7 @@ public class IngredientController {
                                          @PathVariable String id, Model model){
         model.addAttribute("ingredient", ingredientService.findByRecipeIdAndIngredientId(recipeId, id));
 
-        model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
+        model.addAttribute("uomList", unitOfMeasureReactiveService.listAllUoms().collectList().block());
         return "recipe/ingredient/ingredientform";
     }
 
